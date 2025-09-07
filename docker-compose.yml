@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  cassandra-node1:
+    image: cassandra:4.1
+    container_name: cassandra-node1
+    ports:
+      - "192.168.1.101:9042:9042"   # CQL клиентский порт
+      - "192.168.1.101:9160:9160"   # Thrift (если используется)
+      - "192.168.1.101:7000:7000"   # Межнодовое взаимодействие
+      - "192.168.1.101:7001:7001"   # SSL межнодовое
+    environment:
+      - CASSANDRA_CLUSTER_NAME=my_cluster
+      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+    networks:
+      cassandra_net:
+        ipv4_address: 172.20.0.2
+
+  cassandra-node2:
+    image: cassandra:4.1
+    container_name: cassandra-node2
+    ports:
+      - "192.168.1.101:9043:9042"   # CQL на другом порту
+      - "192.168.1.101:9161:9160"
+      - "192.168.1.101:7002:7000"
+      - "192.168.1.101:7003:7001"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=my_cluster
+      - CASSANDRA_SEEDS=cassandra-node1
+      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+    depends_on:
+      - cassandra-node1
+    networks:
+      cassandra_net:
+        ipv4_address: 172.20.0.3
+
+  cassandra-node3:
+    image: cassandra:4.1
+    container_name: cassandra-node3
+    ports:
+      - "192.168.1.101:9044:9042"
+      - "192.168.1.101:9162:9160"
+      - "192.168.1.101:7004:7000"
+      - "192.168.1.101:7005:7001"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=my_cluster
+      - CASSANDRA_SEEDS=cassandra-node1
+      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+    depends_on:
+      - cassandra-node1
+    networks:
+      cassandra_net:
+        ipv4_address: 172.20.0.4
+
+networks:
+  cassandra_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
