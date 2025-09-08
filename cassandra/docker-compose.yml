@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  cassandra-node1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SSH_USER_PASSWORD=${SSH_USER_PASSWORD}
+    container_name: cassandra-node1
+    networks:
+      lab-net:
+        ipv4_address: 192.168.1.200
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
+      - CASSANDRA_SEEDS=192.168.1.200
+
+  cassandra-node2:
+    image: cassandra:4.1
+    container_name: cassandra-node2
+    networks:
+      lab-net:
+        ipv4_address: 192.168.1.201
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
+      - CASSANDRA_SEEDS=192.168.1.200
+
+  cassandra-node3:
+    image: cassandra:4.1
+    container_name: cassandra-node3
+    networks:
+      lab-net:
+        ipv4_address: 192.168.1.202
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
+      - CASSANDRA_SEEDS=192.168.1.200
+
+networks:
+  lab-net:
+    external: true
+    name: unosoft_lab-net
