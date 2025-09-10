@@ -16,7 +16,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Монтируем сокет хоста
     working_dir: /app
-    privileged: true
 
   vm2:
     container_name: vm2

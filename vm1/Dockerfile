@@ -13,12 +13,8 @@ RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/d
 
 # Установка Docker Engine и Docker Compose Plugin
 RUN apt update && \
-    apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && \
+    apt install -y docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
-
-# Добавляем root в группу docker (для работы с /var/run/docker.sock)
-RUN groupadd -g 999 docker 2>/dev/null || true && \
-    usermod -aG docker root
 
 COPY ./cassandra/Dockerfile \
      ./cassandra/docker-compose.yml \
