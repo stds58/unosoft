@@ -25,7 +25,7 @@ COPY sshd_config /etc/ssh/sshd_config
 
 RUN service ssh start
 
-EXPOSE 22 9042 7000 7001
+EXPOSE 22 9042 9043 9044
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
