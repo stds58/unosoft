@@ -1,35 +1,47 @@
 version: '3.8'
 
 services:
-  # ВМ1 — 192.168.1.197 — "запускает" docker-compose (через монтирование docker.sock)
-  vm1:
-    container_name: vm1
+  cassandra-node1:
     build:
       context: .
-      dockerfile: vm1/Dockerfile
-    networks:
-      lab-net:
-        ipv4_address: 192.168.1.197
+      args:
+        - SSH_KEY_PUB_NAME=${SSH_KEY_PUB_NAME}
+        - SUDO_PASSWORD=${SUDO_PASSWORD}
+    hostname: cassandra-node1
+    ports:
+      - "9042:9042"
+      - "2201:22"
     environment:
-      - SSH_USER_PASSWORD=${SSH_USER_PASSWORD}
       - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock  # Монтируем сокет хоста
-    working_dir: /app
+      - CASSANDRA_SEEDS=cassandra-node1
+    restart: unless-stopped
 
-  vm2:
-    container_name: vm2
-    build:
-      context: .
-      dockerfile: vm2/Dockerfile
-    networks:
-      lab-net:
-        ipv4_address: 192.168.1.198
+  cassandra-node2:
+      build:
+        context: .
+        args:
+          - SSH_KEY_PUB_NAME=${SSH_KEY_PUB_NAME}
+          - SUDO_PASSWORD=${SUDO_PASSWORD}
+      hostname: cassandra-node2
+      ports:
+        - "9043:9042"
+        - "2202:22"
+      environment:
+        - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
+        - CASSANDRA_SEEDS=cassandra-node1
+      restart: unless-stopped
 
-networks:
-  lab-net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.1.0/24
-          gateway: 192.168.1.1
+  cassandra-node3:
+      build:
+        context: .
+        args:
+          - SSH_KEY_PUB_NAME=${SSH_KEY_PUB_NAME}
+          - SUDO_PASSWORD=${SUDO_PASSWORD}
+      hostname: cassandra-node3
+      ports:
+        - "9044:9042"
+        - "2203:22"
+      environment:
+        - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
+        - CASSANDRA_SEEDS=cassandra-node1
+      restart: unless-stopped
